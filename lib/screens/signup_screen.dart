@@ -138,7 +138,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       username: userNameCtrl.text,
                       file: _image!
                     );
-
                     print(res);
                   },
                   child: const Text("Register"),
