@@ -31,6 +31,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
+  void signUpUser() async {
+    String res = await _authMethods.signUpUser(
+        email: emailCtrl.text,
+        password: passCtrl.text,
+        username: userNameCtrl.text,
+        file: _image!);
+
+    if (res == "success") {
+      // Snackbar
+      showSnackBar(res, context);
+    } else {
+      //snackbar
+      showSnackBar(res, context);
+    }
+    print(res);
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -94,7 +111,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 height: 24,
               ),
 
-              // Full Name
+              // User Name
               TextFieldInput(
                 hintText: 'Username',
                 textEditingController: userNameCtrl,
@@ -131,15 +148,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Container(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    String res = await _authMethods.signUpUser(
-                      email: emailCtrl.text,
-                      password: passCtrl.text,
-                      username: userNameCtrl.text,
-                      file: _image!
-                    );
-                    print(res);
-                  },
+                  onPressed: signUpUser,
                   child: const Text("Register"),
                 ),
               ),

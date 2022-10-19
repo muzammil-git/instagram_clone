@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:instagram_clone/resource/storage_methods.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,33 +12,45 @@ class AuthMethods {
     required String email,
     required String password,
     required String username,
-    required Uint8List file, // Why not File file ?
+    required Uint8List
+        file, // Why not File file ? Bcuz file doesn't work on web
   }) async {
     String res = "Some error occured";
 
     try {
-      if (email.isNotEmpty || password.isNotEmpty || username.isNotEmpty || file!=null) {
+      if (email.isNotEmpty ||
+          password.isNotEmpty ||
+          username.isNotEmpty ||
+          file != null) {
         UserCredential userCred = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
         String uid = userCred.user!.uid;
-        print(uid);
 
-        _firestore.collection("users").doc(uid).set({
+        String photoUrl = await StorageMethods()
+            .uploadImageStorage('profileImage', file, false);
+        print(photoUrl);
+
+        await _firestore.collection("users").doc(uid).set({
           "username": username,
           "email": email,
           "uid": uid,
           'followers': [],
           'following': [],
-          "timestamp": DateTime.now().toUtc()
+          "timestamp": DateTime.now().toUtc(),
+          "photoUrl": photoUrl
         });
 
         return res = "success";
       }
+    } on FirebaseAuthException catch (err) {
+      if (err.code == "invalid-email") {
+        res = "The email is badly formated, please rewrite";
+      }
     } catch (e) {
-      return res = res.toString();
+      return res = "${e.toString()}";
     }
 
     return 'Validators didnt hit';
