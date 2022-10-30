@@ -55,4 +55,31 @@ class AuthMethods {
 
     return 'Validators didnt hit';
   }
+
+  // Sign up user
+  Future<String> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    String res = "Some error occured";
+
+    try {
+      if (email.isNotEmpty || password.isNotEmpty) {
+        await _auth.signInWithEmailAndPassword(
+            email: email, password: password);
+        res = "success";
+      } else {
+        res = "Please enter all the fields";
+      }
+    } on FirebaseAuthException catch (err) {
+      if (err.code == "wrong-password") {
+        return err.message.toString();
+      }
+      return err.toString();
+    } catch (e) {
+      return e.toString();
+    }
+
+    return res;
+  }
 }

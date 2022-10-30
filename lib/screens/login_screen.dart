@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_clone/resource/auth_methods.dart';
+import 'package:instagram_clone/screens/signup_screen.dart';
 import 'package:instagram_clone/utils/colors.dart';
+import 'package:instagram_clone/utils/utils.dart';
 
+import '../responsive/mobile_screen_layout.dart';
+import '../responsive/responsive_layout_screen.dart';
+import '../responsive/web_screen_layout.dart';
 import '../widgets/text_field_input.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -23,6 +30,27 @@ class _LoginScreenState extends State<LoginScreen> {
     passCtrl.dispose();
   }
 
+  void loginUser() async {
+    String res = await AuthMethods()
+        .loginUser(email: emailCtrl.text, password: passCtrl.text);
+
+    if (res == "success") {
+      // showSnackBar(res, context);
+       // ignore: use_build_context_synchronously
+       Navigator.pushReplacement(
+        context, MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            webScreenLayout: WebScreenLayout(), 
+            mobileScreenLayout: MobileScreenLayout())
+      ));
+    } else {
+      
+      showSnackBar(res, context);
+    }
+  }
+
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +62,8 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
-                child: Container(),
                 flex: 2,
+                child: Container(),
               ),
               //SVG image
               SvgPicture.asset(
@@ -43,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.white,
               ),
 
-              SizedBox(
+              const SizedBox(
                 height: 64,
               ),
 
@@ -69,11 +97,32 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: 16,
               ),
+
               // Button login
               Container(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+
+                    String res = await AuthMethods().loginUser(
+                      email: emailCtrl.text,
+                      password: passCtrl.text,
+                    );
+
+                    if (res == "success") {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const HomeScreen()));
+                    } else {
+                      showSnackBar(res, context);
+                    }
+
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
                   child: const Text("Log in"),
                 ),
               ),
@@ -84,29 +133,33 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               // Transitioning to signing up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 02),
-                    child: const Text(
-                      "Don't have an account?",
-                      style: TextStyle(fontWeight: FontWeight.w300),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      
-                    },
-                    child: Container(
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SignUpScreen()));
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
                       padding: const EdgeInsets.symmetric(horizontal: 02),
                       child: const Text(
-                        "Sign Up.",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        "Don't have an account?",
+                        style: TextStyle(fontWeight: FontWeight.w300),
                       ),
                     ),
-                  )
-                ],
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 02),
+                        child: const Text(
+                          "Sign Up.",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ],
           ),
